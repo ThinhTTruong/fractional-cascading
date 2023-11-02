@@ -8,17 +8,15 @@ current_time = int(time.time())
 random.seed(current_time)
 
 
-MAX_NUMBER_IN_LIST = 1000
 MAX_NODE_VALUE = 100
-MAX_NODE_DEGREE = 10    #d
-MAX_LIST_LENGTH = 10    #max length of C(v)
-TREE_HEIGHT = 3
-INSERT_PROBABILITY = 1 / (2 * MAX_NODE_DEGREE)
-
+MAX_NODE_DEGREE = 3    #d
+MAX_LIST_LENGTH = 1    #max length of C(v)
+# INSERT_PROBABILITY = 1 / (2 * MAX_NODE_DEGREE)
+INSERT_PROBABILITY = 1
 
 # values for node list and augmented list
 MIN_NUMBER_IN_LIST = 1
-MAX_NUMBER_IN_LIST = 1000
+MAX_NUMBER_IN_LIST = 10
 MIN_BOUNDARY = MIN_NUMBER_IN_LIST - 1
 MAX_BOUNDARY = MAX_NUMBER_IN_LIST + 1
 
@@ -72,9 +70,12 @@ class TreeNode:
                     start += 1
 
     def print_augmented_list(self):
-        values = map(lambda node: node.value, self.augmented_list)
-        return list(values)
+        values = list(map(lambda node: node.value, self.augmented_list))
+        return values
 
+    def print_augmented_list2(self):
+        values = list(map(lambda node: node.print_pointers(), self.augmented_list))
+        return values
 
 class ListNode:
     def __init__(self, value, tree_node: TreeNode = None):
@@ -98,32 +99,12 @@ class ListNode:
     def set_proper(self, index: int, list_node: "ListNode"):
         self.proper = (index, list_node)
 
-# Create a random balanced tree
-def create_tree(height: int, parent: TreeNode = None):
-    if height <= 0:
-        return None
-
-    root = TreeNode(random.randint(1, MAX_NODE_VALUE), MAX_LIST_LENGTH)
-    root.parent = parent
-    num_children = MAX_NODE_DEGREE - 1
-
-    for _ in range(num_children):
-        child = create_tree(height-1, root)
-        if child is not None:
-            root.add_child(child)
-
-    return root
-
-# Print tree
-def print_tree(root: TreeNode, level=0):
-    if root is not None:
-        print("  " * level + str(root.value), root.node_list, root.print_augmented_list())
-        for child in root.children:
-            print_tree(child, level + 1)
+    def print_pointers(self):
+        return list(map(lambda node: node.value, self.bridges)), list(map(lambda node: node.tree_node.value if node.tree_node else node.value, self.bridges)), self.prev.value if self.prev else self.prev, self.next.value if self.next else self.next, self.proper[1].value if self.proper else self.proper
 
 def insert(augmented_list: list[ListNode], list_node: ListNode) -> bool:
     for i in range(len(augmented_list) - 1):
-        if augmented_list[i].value < x <= augmented_list[i + 1].value:
+        if augmented_list[i].value < list_node.value <= augmented_list[i + 1].value:
             x, y = augmented_list[i], augmented_list[i + 1]
             
             if list_node.value == y.value:
@@ -149,17 +130,51 @@ def insert(augmented_list: list[ListNode], list_node: ListNode) -> bool:
 
 def insert_recursive(list_node: ListNode, tree_node: TreeNode):
     # perform insert on neighbors
+    insert_parent = False
     if tree_node.parent:
         insert_parent = insert(tree_node.parent.augmented_list, list_node)
-    for child in tree_node.children:
-        insert_child = insert(child.augmented_list, list_node)
-        if insert_child:
-            insert_recursive(list_node, child)
+    if tree_node.children:
+        for child in tree_node.children:
+            insert_child = insert(child.augmented_list, list_node)
+            if insert_child:
+                insert_recursive(list_node, child)
     if insert_parent:
         insert_recursive(list_node, tree_node.parent)
 
-# Example usage:
-root = create_tree(TREE_HEIGHT)
+# Create a random balanced tree
+def create_tree(height: int, parent: TreeNode = None):
+    if height <= 0:
+        return None
 
-# Print the tree structure
-print_tree(root)
+    root = TreeNode(random.randint(1, MAX_NODE_VALUE), MAX_LIST_LENGTH)
+    root.parent = parent
+    num_children = MAX_NODE_DEGREE - 1
+
+    for _ in range(num_children):
+        child = create_tree(height-1, root)
+        if child is not None:
+            root.add_child(child)
+
+    return root
+
+# Process tree
+def repetition_step(root: TreeNode):
+    root.generate_augmented_list()
+
+    for child in root.children:
+        repetition_step(child)
+
+def postprocessing_step(root: TreeNode):
+    root.post_processing()
+
+    for child in root.children:
+        postprocessing_step(child)
+
+# Print tree
+def print_tree(root: TreeNode, level=0):
+    if root is not None:
+        print("  " * level + str(root.value), root.node_list, root.print_augmented_list())
+        print(root.print_augmented_list2())
+        print
+        for child in root.children:
+            print_tree(child, level + 1)

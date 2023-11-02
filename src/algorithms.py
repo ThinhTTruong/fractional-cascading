@@ -15,13 +15,13 @@ def binary_search_naive(lst, target):
         mid = (left + right) // 2
 
         if lst[mid] == target:
-            return mid
+            return target
         elif lst[mid] < target:
             left = mid + 1
         else:
             right = mid - 1 
 
-    return -1 
+    return lst[right] 
 
 def fractional_cascading(path: list[TreeNode], target: int):
     result = []
@@ -29,7 +29,8 @@ def fractional_cascading(path: list[TreeNode], target: int):
     # Binary search on first tree node
     current_node = path[0]
     first_index = binary_search_fc(path[0].augmented_list, target)
-    if current_node.augmented_list[first_index].proper[1].value == target:
+    cur_proper = current_node.augmented_list[first_index].proper
+    if cur_proper and cur_proper[1].value == target:
         result.append(current_node.augmented_list[first_index].proper[0])
     else:
         result.append(-1)
@@ -60,14 +61,18 @@ def binary_search_fc(lst: list[ListNode], target: int):
 def helper(cur_index: int, cur_node: TreeNode, next_node: TreeNode, target: int):
     cur_list = cur_node.augmented_list
     current = cur_list[cur_index]
+    found = False
     while current:
-        if not current.bridges:
-            current = current.next
-        else:
+        if current.bridges:
             for bridge in current.bridges:
                 if bridge.tree_node == next_node: #step 2
                     current = bridge #step 3
+                    found = True
                     break
+        if found:
+            break
+        else:
+            current = current.next
 
     while current and current.prev.value >= target: #step 4
         current = current.prev
