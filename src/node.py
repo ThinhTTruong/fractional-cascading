@@ -27,7 +27,7 @@ class TreeNode:
         self.parent : TreeNode = None
         self.children : list[TreeNode] = []
         self.node_list = sorted([random.randint(MIN_NUMBER_IN_LIST, MAX_NUMBER_IN_LIST) for _ in range(random.randint(1, random.randint(1, max_list_len)))])
-        self.augmented_list= [ListNode(MIN_BOUNDARY)] + [ListNode(value, self) for value in self.node_list] + [ListNode(MAX_BOUNDARY)]     #initialize the list with elements from node_list and boundary values
+        self.augmented_list= [ListNode(MIN_BOUNDARY, self)] + [ListNode(value, self) for value in self.node_list] + [ListNode(MAX_BOUNDARY, self)]     #initialize the list with elements from node_list and boundary values
 
         # set prev/next pointers for augmented_list
         for i in range(len(self.augmented_list)):
@@ -61,7 +61,7 @@ class TreeNode:
     def post_processing(self):
         start, end = 0, 0
         for i in range(len(self.augmented_list)):
-            if self.augmented_list[i].tree_node:
+            if self.augmented_list[i].value != MIN_BOUNDARY and self.augmented_list[i].value != MAX_BOUNDARY and self.augmented_list[i].tree_node:
                 end = i
                 current_proper = self.augmented_list[i]
 
