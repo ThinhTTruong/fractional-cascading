@@ -54,7 +54,7 @@ class TreeNode:
             self.parent.augmented_list[-1].add_bridges(self.augmented_list[-1])
 
         # perform insert on neighbors
-        for list_node in self.augmented_list[1: -1]:
+        for list_node in self.node_list:
             insert_recursive(list_node, self)
 
     # set proper pointers
@@ -101,6 +101,25 @@ class ListNode:
 
     def print_pointers(self):
         return list(map(lambda node: node.value, self.bridges)), list(map(lambda node: node.tree_node.value if node.tree_node else node.value, self.bridges)), self.prev.value if self.prev else self.prev, self.next.value if self.next else self.next, self.proper[1].value if self.proper else self.proper
+
+def insert_own_list(augmented_list: list[ListNode], value: int, tree_node: TreeNode) -> ListNode:
+    for i in range(len(augmented_list) - 1):
+        if augmented_list[i].value < value <= augmented_list[i + 1].value:
+            x, y = augmented_list[i], augmented_list[i + 1]
+
+            if value == y.value:
+                y.tree_node = tree_node
+                return None
+            else:
+                new_node = ListNode(value)
+                # insert new node
+                augmented_list.insert(i + 1, new_node)
+                # uppdate pointers
+                x.set_next(new_node)
+                new_node.set_prev(x)
+                new_node.set_next(y)
+                y.set_prev(new_node)
+                return new_node
 
 def insert(augmented_list: list[ListNode], list_node: ListNode) -> bool:
     for i in range(len(augmented_list) - 1):
