@@ -47,17 +47,22 @@ def leaf_node_leaf_path(root: TreeNode, height: int):
     current = start_leaf
     path.append(current)
 
+    mid_point = height//2
+
     # Path going up
-    for _ in range(height - 1):
-        current = current.parent
-        path.append(current)
+    for _ in range(mid_point):
+        if current.parent:
+            current = current.parent
+            path.append(current)
 
     # Path going down
-    for _ in range(height - 1):
-        current = random.choice(current.children)
-        path.append(current)
+    for _ in range(mid_point):
+        if current.children:
+            current = random.choice(current.children)
+            path.append(current)
 
     return path
 
 def print_path(path: list[TreeNode]):
-    return list(map(lambda node: node.node_list, path))
+    # return list(map(lambda node: node.node_list, path))
+    return list(map(lambda node: node.value, path))

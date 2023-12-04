@@ -11,7 +11,7 @@ def naive_algorithm(path: list[TreeNode], target: int):
 def binary_search_naive(lst, target):
     left, right = 0, len(lst) - 1
 
-    while left <= right:
+    while left < right:
         mid = (left + right) // 2
 
         if lst[mid] == target:
@@ -19,7 +19,7 @@ def binary_search_naive(lst, target):
         elif lst[mid] < target:
             left = mid + 1
         else:
-            right = mid - 1 
+            right = mid
 
     return lst[right] 
 
@@ -28,12 +28,11 @@ def fractional_cascading(path: list[TreeNode], target: int):
 
     # Binary search on first tree node
     current_node = path[0]
-    first_index = binary_search_fc(path[0].augmented_list, target)
-    cur_proper = current_node.augmented_list[first_index].proper
-    if cur_proper and cur_proper[1].value == target:
-        result.append(current_node.augmented_list[first_index].proper[0])
+    (first_index, first_value) = binary_search_fc(current_node.augmented_list, target)
+    if first_value == target and current_node.augmented_list[first_index].tree_node:
+        result.append(first_value)
     else:
-        result.append(-1)
+        result.append(current_node.augmented_list[first_index].proper[1].value)
 
     cur_index = first_index
     # fractional cascading on other nodes
@@ -44,24 +43,25 @@ def fractional_cascading(path: list[TreeNode], target: int):
     return result
 
 def binary_search_fc(lst: list[ListNode], target: int):
+    #return (index, value)
     left, right = 0, len(lst) - 1
 
-    while left <= right:
+    while left < right:
         mid = (left + right) // 2
 
         if lst[mid].value == target:
-            return mid
+            return (mid, target)
         elif lst[mid].value < target:
             left = mid + 1
         else:
-            right = mid - 1 
-
-    return left 
+            right = mid 
+    return (right, lst[right].value)
 
 def helper(cur_index: int, cur_node: TreeNode, next_node: TreeNode, target: int):
     cur_list = cur_node.augmented_list
     current = cur_list[cur_index]
     found = False
+    value = 0
     while current:
         if current.bridges:
             for bridge in current.bridges:
@@ -73,14 +73,16 @@ def helper(cur_index: int, cur_node: TreeNode, next_node: TreeNode, target: int)
             break
         else:
             current = current.next
-
+    value = current.proper[1].value
     while current and current.prev.value >= target: #step 4
         current = current.prev
+        if current.proper:
+            value = current.proper[1].value
     
     index = next_node.augmented_list.index(current)
 
-    if current.proper and current.proper[1].value == target:
-        return (index, current.proper[0]) # return index of current element in A(v), and index of matching elemnt in C(v)
+    if current.proper and value == target:
+        return (index, target) # return index of current element in A(v), and matching value in C(v)
 
-    return (index, -1)
+    return (index, value) # return index of element in A(v), and smallest value in C(v) that is greater target
 
