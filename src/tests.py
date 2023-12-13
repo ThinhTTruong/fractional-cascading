@@ -13,36 +13,6 @@ def initialization(n: int):
 
     return root
 
-def runtime_test():
-    n_values = list(range(1, 12, 2))
-    naive_runtimes = []
-    fc_runtimes = []
-    for n in n_values:
-        naive_runtime, fc_runtime = get_runtime(n)
-        naive_runtimes.append(naive_runtime)
-        fc_runtimes.append(fc_runtime)
-    plt.plot(n_values, naive_runtimes, marker='o', linestyle='-', label='Naive')
-    plt.plot(n_values, fc_runtimes, marker='o', linestyle='-', label='Fractional Cascading')
-
-    plt.title('Runtime Comparison of Naive and Fractional Cascading Algorithm')
-    plt.xticks(range(min(n_values), math.ceil(max(n_values))+1, 2))
-    plt.xlabel('n')
-    plt.ylabel('Runtime (seconds)')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-def get_runtime(n: int):
-    naive_total_time = 0
-    fc_total_time = 0
-    for _ in range(n):
-        naive_time, fc_time = query(n)
-        naive_total_time += naive_time
-        fc_total_time += fc_time
-    naive_avg_time = naive_total_time / n
-    fc_avg_time = fc_total_time / n
-    return naive_avg_time, fc_avg_time
-
 def query(n: int):
     target = random.randint(1, n**2)
     root = initialization(n)
@@ -62,6 +32,36 @@ def query(n: int):
 def correctness_check(list1, list2):
     result = all(elem1 == elem2 for elem1, elem2 in zip(list1, list2))
     return result
+
+def get_runtime(n: int):
+    naive_total_time = 0
+    fc_total_time = 0
+    for _ in range(n):
+        naive_time, fc_time = query(n)
+        naive_total_time += naive_time
+        fc_total_time += fc_time
+    naive_avg_time = naive_total_time / n
+    fc_avg_time = fc_total_time / n
+    return naive_avg_time, fc_avg_time
+
+def runtime_test():
+    n_values = list(range(1, 12, 2))
+    naive_runtimes = []
+    fc_runtimes = []
+    for n in n_values:
+        naive_runtime, fc_runtime = get_runtime(n)
+        naive_runtimes.append(naive_runtime)
+        fc_runtimes.append(fc_runtime)
+    plt.plot(n_values, naive_runtimes, marker='o', linestyle='-', label='Naive')
+    plt.plot(n_values, fc_runtimes, marker='o', linestyle='-', label='Fractional Cascading')
+
+    plt.title('Runtime Comparison of Naive and Fractional Cascading Algorithm')
+    plt.xticks(range(min(n_values), math.ceil(max(n_values))+1, 2))
+    plt.xlabel('n')
+    plt.ylabel('Runtime (seconds)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 def main():
     # Update MAX_DEGREE and range of n_values before running this function
