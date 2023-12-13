@@ -1,4 +1,4 @@
-from node import setup_tree, repetition_step, postprocessing_step, print_tree
+from node import create_whole_tree
 import paths
 import algorithms
 import time
@@ -9,10 +9,7 @@ import math
 MAX_DEGREE = 3
 
 def initialization(n: int):
-    root = setup_tree(n, MAX_DEGREE)
-
-    repetition_step(root)
-    postprocessing_step(root)
+    root = create_whole_tree(n, MAX_DEGREE)
 
     return root
 
