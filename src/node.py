@@ -172,6 +172,12 @@ def insert_recursive(list_node: ListNode, tree_node: TreeNode):
 
 
 # Create a random balanced tree with given size and max_degree
+def create_whole_tree(size: int, max_degree: int):
+    root = setup_tree(size, max_degree)
+    repetition_step(root)
+    postprocessing_step(root)
+    return root
+
 def setup_tree(size: int, max_degree: int):
     global INPUT_SIZE, INPUT_DEGREE
     INPUT_SIZE = size

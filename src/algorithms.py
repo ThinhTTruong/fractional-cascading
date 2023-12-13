@@ -39,7 +39,6 @@ def fractional_cascading(path: list[TreeNode], target: int):
     for i in range(len(path)-1):
         cur_index, res = helper(cur_index, path[i], path[i+1], target)
         result.append(res)
-        # print('trying')
 
     return result
 
