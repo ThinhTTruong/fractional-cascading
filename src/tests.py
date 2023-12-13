@@ -8,15 +8,15 @@ import math
 
 MAX_DEGREE = 3
 
-def initialization(n: int):
-    root = create_whole_tree(n, MAX_DEGREE)
+def initialization(n: int, max_degree: int):
+    root = create_whole_tree(n, max_degree)
 
     return root
 
-def query(n: int):
+def query(n: int, max_degree: int):
     target = random.randint(1, n**2)
-    root = initialization(n)
-    # path = paths.root_to_leaf_path(root, MAX_DEGREE)
+    root = initialization(n, max_degree)
+    # path = paths.root_to_leaf_path(root, max_degree)
     path = paths.leaf_node_leaf_path(root, n)
     naive_start_time = time.time()
     naive_res = algorithms.naive_algorithm(path, target)
@@ -33,23 +33,23 @@ def correctness_check(list1, list2):
     result = all(elem1 == elem2 for elem1, elem2 in zip(list1, list2))
     return result
 
-def get_runtime(n: int):
+def get_runtime(n: int, max_degree: int):
     naive_total_time = 0
     fc_total_time = 0
     for _ in range(n):
-        naive_time, fc_time = query(n)
+        naive_time, fc_time = query(n, max_degree)
         naive_total_time += naive_time
         fc_total_time += fc_time
     naive_avg_time = naive_total_time / n
     fc_avg_time = fc_total_time / n
     return naive_avg_time, fc_avg_time
 
-def runtime_test():
-    n_values = list(range(1, 12, 2))
+def runtime_test(max_degree: int, max_n: int):
+    n_values = list(range(1, max_n, 2))
     naive_runtimes = []
     fc_runtimes = []
     for n in n_values:
-        naive_runtime, fc_runtime = get_runtime(n)
+        naive_runtime, fc_runtime = get_runtime(n, max_degree)
         naive_runtimes.append(naive_runtime)
         fc_runtimes.append(fc_runtime)
     plt.plot(n_values, naive_runtimes, marker='o', linestyle='-', label='Naive')
@@ -64,8 +64,7 @@ def runtime_test():
     plt.show()
 
 def main():
-    # Update MAX_DEGREE and range of n_values before running this function
-    runtime_test()
+    runtime_test(3, 16)
 
 if __name__ == "__main__":
     main()
