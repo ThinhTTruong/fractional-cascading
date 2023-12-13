@@ -4,8 +4,9 @@ import algorithms
 import time
 import random
 import matplotlib.pyplot as plt
+import math
 
-MAX_DEGREE = 5
+MAX_DEGREE = 3
 
 def initialization(n: int):
     root = setup_tree(n, MAX_DEGREE)
@@ -13,22 +14,21 @@ def initialization(n: int):
     repetition_step(root)
     postprocessing_step(root)
 
-    # Print the tree structure
-    # print_tree(root)
     return root
 
 def runtime_test():
-    n_values = list(range(1, 202, 50))
+    n_values = list(range(1, 12, 2))
     naive_runtimes = []
     fc_runtimes = []
     for n in n_values:
         naive_runtime, fc_runtime = get_runtime(n)
         naive_runtimes.append(naive_runtime)
         fc_runtimes.append(fc_runtime)
-    plt.plot(n_values, naive_runtimes, marker='o', linestyle='-', label='Function 1')
-    plt.plot(n_values, fc_runtimes, marker='o', linestyle='-', label='Function 2')
+    plt.plot(n_values, naive_runtimes, marker='o', linestyle='-', label='Naive')
+    plt.plot(n_values, fc_runtimes, marker='o', linestyle='-', label='Fractional Cascading')
 
-    plt.title('Runtime Comparison of Function 1 and Function 2')
+    plt.title('Runtime Comparison of Naive and Fractional Cascading Algorithm')
+    plt.xticks(range(min(n_values), math.ceil(max(n_values))+1, 2))
     plt.xlabel('n')
     plt.ylabel('Runtime (seconds)')
     plt.legend()
@@ -49,7 +49,7 @@ def get_runtime(n: int):
 def query(n: int):
     target = random.randint(1, n**2)
     root = initialization(n)
-    # path = paths.root_to_leaf_path(root)
+    # path = paths.root_to_leaf_path(root, MAX_DEGREE)
     path = paths.leaf_node_leaf_path(root, n)
     naive_start_time = time.time()
     naive_res = algorithms.naive_algorithm(path, target)
@@ -60,16 +60,15 @@ def query(n: int):
     naive_time = naive_end_time - naive_start_time
     fc_time = fc_end_time - fc_start_time
     is_correct = correctness_check(naive_res, fc_res)
-    print(is_correct)
-    # print(paths.print_path(path))
-    # print(naive_res)
-    # print(fc_res)
-    print(naive_time, fc_time)
     return naive_time, fc_time
 
 def correctness_check(list1, list2):
     result = all(elem1 == elem2 for elem1, elem2 in zip(list1, list2))
     return result
 
-# runtime_test()
-query(12)
+def main():
+    # Update MAX_DEGREE and range of n_values before running this function
+    runtime_test()
+
+if __name__ == "__main__":
+    main()

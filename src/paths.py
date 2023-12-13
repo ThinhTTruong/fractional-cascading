@@ -1,8 +1,8 @@
 import random
 
-from node import TreeNode, MAX_NODE_DEGREE
+from node import TreeNode
 
-def root_to_leaf_path(root: TreeNode):
+def root_to_leaf_path(root: TreeNode, node_degree: int):
     if not root:
         return []
     
@@ -15,7 +15,7 @@ def root_to_leaf_path(root: TreeNode):
         if not current.children:
             break
 
-        child_index = random.randint(0, MAX_NODE_DEGREE - 2)
+        child_index = random.randint(0, node_degree - 2)
         current = current.children[child_index]
 
     return path
@@ -62,7 +62,3 @@ def leaf_node_leaf_path(root: TreeNode, height: int):
             path.append(current)
 
     return path
-
-def print_path(path: list[TreeNode]):
-    # return list(map(lambda node: node.node_list, path))
-    return list(map(lambda node: node.value, path))

@@ -1,5 +1,6 @@
 import random
 import time
+from collections import deque
 
 # Get the current time in seconds since the epoch as an integer
 current_time = int(time.time())
@@ -21,7 +22,6 @@ MIN_NUMBER_IN_LIST = 1
 MAX_NUMBER_IN_LIST = INPUT_SIZE**2
 MIN_BOUNDARY = MIN_NUMBER_IN_LIST - 1
 MAX_BOUNDARY = MAX_NUMBER_IN_LIST + 1
-
 
 class TreeNode:
     def __init__(self, value, max_list_len: int):
@@ -54,7 +54,6 @@ class TreeNode:
             self.parent.augmented_list[0].add_bridges(self.augmented_list[0])   
             self.augmented_list[-1].add_bridges(self.parent.augmented_list[-1])
             self.parent.augmented_list[-1].add_bridges(self.augmented_list[-1])
-        # print(self.print_augmented_list2())
         # perform insert on neighbors
         for value in self.node_list:
             list_node = insert_own_list(self.augmented_list, value, self)
@@ -65,7 +64,6 @@ class TreeNode:
         # set proper pointers
         start, end = 0, 0
         for i in range(len(self.augmented_list)):
-            # if self.augmented_list[i].value != MIN_BOUNDARY and self.augmented_list[i].value != MAX_BOUNDARY and self.augmented_list[i].tree_node:
             if self.augmented_list[i].tree_node:
                 end = i
                 current_proper = self.augmented_list[i]
@@ -80,10 +78,6 @@ class TreeNode:
 
     def print_augmented_list(self):
         values = list(map(lambda node: node.value, self.augmented_list))
-        return values
-
-    def print_augmented_list2(self):
-        values = list(map(lambda node: node.print_pointers(), self.augmented_list))
         return values
 
 class ListNode:
@@ -108,9 +102,6 @@ class ListNode:
     def set_proper(self, index: int, list_node: "ListNode"):
         self.proper = (index, list_node)
 
-    def print_pointers(self):
-        return list(map(lambda node: node.value, self.bridges)), list(map(lambda node: node.tree_node.value if node.tree_node else node.value, self.bridges)), self.prev.value if self.prev else self.prev, self.next.value if self.next else self.next, self.proper[1].value if self.proper else self.proper
-
 def insert_own_list(augmented_list: list[ListNode], value: int, tree_node: TreeNode) -> ListNode:
     for i in range(len(augmented_list) - 1):
         if augmented_list[i].value < value <= augmented_list[i + 1].value:
@@ -128,8 +119,8 @@ def insert_own_list(augmented_list: list[ListNode], value: int, tree_node: TreeN
                 new_node.set_prev(x)
                 new_node.set_next(y)
                 y.set_prev(new_node)
-                # print(tree_node.value, tree_node.print_augmented_list2())
                 return new_node
+
 def insert(tree_node: TreeNode, list_node: ListNode) -> ListNode:
     augmented_list = tree_node.augmented_list
     for i in range(len(augmented_list) - 1):
@@ -155,33 +146,35 @@ def insert(tree_node: TreeNode, list_node: ListNode) -> ListNode:
                     # add bridges
                     list_node.add_bridges(new_node)
                     new_node.add_bridges(list_node)
-                    # print(tree_node.value, tree_node.print_augmented_list2())
                     return new_node
-    # print(list_node.bridges)
-    # print(tree_node.value, tree_node.print_augmented_list2())
     return None
 
+
 def insert_recursive(list_node: ListNode, tree_node: TreeNode):
-    # perform insert on neighbors
-    # print(tree_node.value, tree_node.print_augmented_list2())
-    parent_list_node = None
+    stack = deque()
     if tree_node.parent:
-        parent_list_node = insert(tree_node.parent, list_node)
+        stack.append([tree_node.parent, list_node])
     if tree_node.children:
         for child in tree_node.children:
-            child_list_node = insert(child, list_node)
-            if child_list_node:
-                insert_recursive(child_list_node, child)
-                # print(tree_node.value, tree_node.print_augmented_list2())
-    if parent_list_node:
-        insert_recursive(parent_list_node, tree_node.parent)
-        # print(tree_node.value, tree_node.print_augmented_list2())
+            stack.append([child, list_node])
+
+    while stack:
+        current_tree_node, current_list_node = stack.pop()
+
+        if current_tree_node:
+            new_list_node = insert(current_tree_node, current_list_node)
+            if new_list_node:
+                if current_tree_node.parent:
+                    stack.append([current_tree_node.parent, new_list_node])
+                if current_tree_node.children:
+                    for child in current_tree_node.children:
+                        stack.append([child, new_list_node])
 
 
 # Create a random balanced tree with given size and max_degree
 def setup_tree(size: int, max_degree: int):
     global INPUT_SIZE, INPUT_DEGREE
-    INPUT_SIZE= size
+    INPUT_SIZE = size
     INPUT_DEGREE = max_degree
     update_variables()
     root = create_tree(size)
@@ -198,38 +191,49 @@ def update_variables():
     MAX_BOUNDARY = MAX_NUMBER_IN_LIST + 1
 
 # Helper to create a random balanced tree
-def create_tree(height: int, parent: TreeNode = None):
+def create_tree(height):
     if height <= 0:
         return None
 
     root = TreeNode(random.randint(1, MAX_NODE_VALUE), MAX_LIST_LENGTH)
-    root.parent = parent
+    stack = deque([(root, height)])
+
     num_children = MAX_NODE_DEGREE - 1
 
-    for _ in range(num_children):
-        child = create_tree(height-1, root)
-        if child is not None:
-            root.add_child(child)
+    while stack:
+        current_node, current_height = stack.pop()
+
+        if current_height > 1:
+            for _ in range(num_children):
+                child = TreeNode(random.randint(1, MAX_NODE_VALUE), MAX_LIST_LENGTH)
+                current_node.add_child(child)
+                child.parent = current_node
+                stack.append((child, current_height - 1))
 
     return root
 
 # Process tree
 def repetition_step(root: TreeNode):
-    root.generate_augmented_list()
+    stack = [root]
 
-    for child in root.children:
-        repetition_step(child)
+    while stack:
+        current_node = stack.pop()
+        current_node.generate_augmented_list()
+
+        stack.extend(current_node.children)
 
 def postprocessing_step(root: TreeNode):
-    root.post_processing()
+    stack = [root]
 
-    for child in root.children:
-        postprocessing_step(child)
+    while stack:
+        current_node = stack.pop()
+        current_node.post_processing()
+
+        stack.extend(current_node.children)
 
 # Print tree
 def print_tree(root: TreeNode, level=0):
     if root is not None:
         print("  " * level + str(root.value), root.node_list, root.print_augmented_list())
-        # print(root.print_augmented_list2())
         for child in root.children:
             print_tree(child, level + 1)
