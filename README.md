@@ -1,6 +1,6 @@
 # fractional-cascading
 
-> The implementation in Python of the fractional cascading algorithm which finds the target integer in the nodes a path, given a path of nodes where each node stores a sorted list of integer.  
+> The implementation in Python of the fractional cascading algorithm which finds the target integer in the nodes a path, given a path of nodes where each node stores a sorted list of integers.  
 
 
 ### 📝 [Project report](https://github.com/ThinhTTruong/fractional-cascading/blob/main/report/report/report.pdf)
@@ -17,7 +17,7 @@ cd fractional-cascading
 ```
 
 ## Test the program 
-Update the parameters that you want to run test against in `runtime()`
+Update the parameters that you want to run test against in `runtime_test()`
 
 In the cloned directory of the repo:
 ```sh
