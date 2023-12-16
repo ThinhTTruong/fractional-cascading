@@ -2,6 +2,7 @@ import random
 
 from node import TreeNode
 
+# path 1
 def root_to_leaf_path(root: TreeNode, node_degree: int):
     if not root:
         return []
@@ -34,6 +35,7 @@ def get_leaf_nodes(root: TreeNode):
     dfs(root)
     return leaf_nodes
 
+# path 2
 def leaf_node_leaf_path(root: TreeNode, height: int):
     leaf_nodes = get_leaf_nodes(root)
 
@@ -62,3 +64,21 @@ def leaf_node_leaf_path(root: TreeNode, height: int):
             path.append(current)
 
     return path
+
+# path 3
+def up_and_down_path(root: TreeNode, node_degree: int, repetition_time: int):
+    path = root_to_leaf_path(root, node_degree)
+    new_path = []
+
+    for node in path:
+        new_path.append(node)
+
+    for node in reversed(path[:-1]):
+        new_path.append(node)
+    for i in range(repetition_time -1):
+        for node in path[1:]:
+            new_path.append(node)
+
+        for node in reversed(path[:-1]):
+            new_path.append(node)
+    return new_path
